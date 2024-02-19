@@ -1,7 +1,7 @@
 # ![picture alt](http://pns.robertfidler.com/favicon.png "Water Sort Solver") Water Sort Puzzle Solver, Puzzle &amp; Survival
 The **Water Sort Puzzle** is a popular mobile game that challenges players to sort colored water in a set of tubes. The goal is to arrange the water in such a way that each tube contains a single color. The game starts with a set of tubes, each containing a mixture of colored water in varying quantities. Your task is to move the water from one tube to another in a way that eventually separates the colors.
 
-***Live Version***: <a href="http://pns.robertfidler.com/" target="_blank">Water Sort Puzzle Solver</a> ***v1.0.0***
+***Live Version***: <a href="http://pns.robertfidler.com/" target="_blank">Water Sort Puzzle Solver</a> ***v1.0.0***<br />
 ***Beta Version***: <a href="https://www.robertfidler.com/puzzle-n-survival/mobile-responsive.html" target="_blank">Water Sort Puzzle Solver</a> ***v1.1.0-beta***
 
 ### Origin Story ###
