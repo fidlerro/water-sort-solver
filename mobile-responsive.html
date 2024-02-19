@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Setup and Solver for the Puzzle and Survival side event Purifying Reagents" />
+        <meta name="author" content="470[TPM]OB-HAVE" />
+        <title>Water Sort Puzzle Solver</title>
+
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+        <link rel="stylesheet" href="mobile-responsive.css" />
+    </head>
+    <body data-bs-theme="light">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+            <a class="navbar-brand mx-2" href="//www.robertfidler.com/puzzle-n-survival/index.html">
+                <img src="favicon.png" alt="Logo" style="height: 30px; margin-right: 10px;" />Water Sort Puzzle Solver
+            </a>
+            <div class="d-flex ms-auto">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse mx-2" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <div class="form-check form-switch nav-link">                    
+                            <label class="form-check-label" for="themeToggle"><i class="bi bi-moon"></i>Dark Mode</label>
+                            <input class="form-check-input" type="checkbox" id="themeToggle">
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            v1.1.0-beta
+                        </span>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container-fluid" style="padding-top: 75px;">
+            <div class="row">
+                <div class="col-md-6" id="PuzzleSetup">
+                    <div class="p-3 border bg-body-tertiary">
+                        <ul class="nav nav-sidebar" style="padding-left: 10px;">
+                            <li style="text-align: center;">
+                                <h1 class="display-3">Water Sort Puzzle Solver</h1>
+
+                                <div style="clear: both; text-align: left;">
+                                    <p>The above link is to the original work which I used when creating my version of a Water Sort Puzzle Solver.  Special thanks to the authors of <a href="https://www.ruslankurdyumov.com" target="_blank">Ruslan Kurdyumov</a>.</p>
+                                    <p>The <b>Water Sort Puzzle</b> is a popular mobile game that challenges players to sort colored water in a set of tubes. The goal is to arrange the water in such a way that each tube contains a single color. The game starts with a set of tubes, each containing a mixture of colored water in varying quantities. Your task is to move the water from one tube to another in a way that eventually separates the colors.</p>
+                                    <p><b>Puzzle Upload</b> allows you to upload a screenshot of your current game state, then analyze it which determines the number of tubes, color bands and their respective order to be solved.  <i>Enjoy!!!</i></p>
+                                </div>
+                            </li>
+                        </ul>
+                        <div>
+                            <h4>Puzzle Upload</h4>
+                            stuff
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar, which becomes vertical in mobile view -->
+                <div class="col-md-1 d-flex flex-column align-items-center justify-content-center" id="toolbar">
+                    <div class="btn-group btn-group-lg" role="group" aria-label="">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Upload screenshot to be solved">
+                            <i class="bi bi-cloud-upload-fill"></i><br />upload
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Analyze screenshot to be solved">
+                            <i class="bi bi-lightning-fill"></i><br />analyze
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Solve previously 'analyzed' screenshot">
+                            <i class="bi bi-cloud-check-fill"></i><br />solve
+                        </button>  
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Reset the entire application">
+                            <i class="bi bi-cloud-slash-fill"></i><br />reset
+                        </button>  
+                    </div>                          
+                </div>
+
+                <div class="col-md-5" id="PuzzleSolved">
+                    <div class="PuzzleSolved-Content"> 
+                        <!-- PuzzleSolved content goes here -->
+                        <div class="p-3 border bg-light">
+                            <canvas id="PuzzleSolved-Canvas" class="disable-dbl-tap-zoom">
+                                Your browser doesn't support the canvas tag.
+                            </canvas>
+
+                            <!-- Textarea -->
+                            <textarea id="PuzzleSolved-Textarea" class="form-control" rows="5" placeholder="Upload, Analyze, and Solve to get soluiton's moves..."></textarea>
+                        </div>            
+                    </div>
+                        <!-- Second Toolbar -->
+                        <div class="toolbar-bottom">
+                            <!-- Toolbar content here -->
+                            <div class="btn-group btn-group-lg" role="group" aria-label="">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="First step of the 'solved' solution">
+                                    <i class="bi bi-skip-start-fill"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Previous step of the 'solved' solution">
+                                    <i class="bi bi-caret-left-fill"></i>
+                                </button>
+                                <div class="input-group" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Current step in solution">
+                                    <span class="input-group-text">1 of 30</span>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Next step of the 'solved' solution">
+                                    <i class="bi bi-caret-right-fill"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Last step of the 'solved' solution">
+                                    <i class="bi bi-skip-end-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.5.0.js"></script>
+
+        <script src="mobile-responsive.js"></script>
+        <!-- Google tag (gtag.js) -->
+        <script async src="//www.googletagmanager.com/gtag/js?id=G-XCDRT6FW3Z"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-XCDRT6FW3Z');
+        </script>
+
+    </body>
+</html>
