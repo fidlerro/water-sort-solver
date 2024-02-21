@@ -79,3 +79,43 @@
     margin: 0 5px;
     width: 50px;
 }
+
+/* Make sure the size of the image fits perfectly into the container */
+#PuzzleSetup img {
+    display: block;
+  
+    /* This rule is very important, please don't ignore this */
+    max-width: 100%;
+}
+
+.doc-preview {
+    margin: 0 auto;
+    text-align: center;
+    align-items: center;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+.file-upload-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.file-upload-btn input[type='file'] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+}
