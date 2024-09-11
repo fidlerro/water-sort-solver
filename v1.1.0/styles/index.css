@@ -12,8 +12,7 @@
         flex-direction: row !important; /* Force horizontal layout on smaller screens */
     }
     #toolbar .btn {
-        margin: 0 5px; /* Adjust spacing between toolbar buttons */
-        width: 100px;
+        width: 95px;
     }
 }
 
@@ -118,4 +117,15 @@
     top: 0;
     opacity: 0;
     cursor: pointer;
+}
+
+.icon-lock {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 10; /* Ensure it's above the cropper overlay */
+}
+
+.img-container {
+    position: relative;
 }
