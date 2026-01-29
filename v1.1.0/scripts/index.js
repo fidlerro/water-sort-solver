@@ -65,39 +65,54 @@ function handleMaxWidthChange(e) {
 
 function initialJSONInput(){
     var input = {
-        colors: [
-            {color: "A", hex: "741D35" },
-            {color: "B", hex: "473CC6" },
-            {color: "C", hex: "EA8521" },
-            {color: "D", hex: "5CA6E4" },
-            {color: "E", hex: "C52B23" },
-            {color: "F", hex: "784C1A" },
-            {color: "G", hex: "E95E7A" },
-            {color: "H", hex: "2AC965" },
-            {color: "I", hex: "A10579" },
-            {color: "J", hex: "0F571B" },
-            {color: "K", hex: "8730CF" },
-            {color: "L", hex: "8730CF" },
-            {color: "Z", hex: "000000" }
+        Colors: [
+            {Key: "A", Hexadecimal: "741D35", Opacity: 1 },
+            {Key: "B", Hexadecimal: "473CC6", Opacity: 1 },
+            {Key: "C", Hexadecimal: "EA8521", Opacity: 1 },
+            {Key: "D", Hexadecimal: "5CA6E4", Opacity: 1 },
+            {Key: "E", Hexadecimal: "C52B23", Opacity: 1 },
+            {Key: "F", Hexadecimal: "784C1A", Opacity: 1 },
+            {Key: "G", Hexadecimal: "E95E7A", Opacity: 1 },
+            {Key: "H", Hexadecimal: "E09AE1", Opacity: 1 },
+            {Key: "I", Hexadecimal: "A10579", Opacity: 1 },
+            {Key: "J", Hexadecimal: "2AC865", Opacity: 1 },
+            {Key: "K", Hexadecimal: "0F571B", Opacity: 1 },
+            {Key: "L", Hexadecimal: "862FCD", Opacity: 1 },
+            {Key: "Z", Hexadecimal: "FFFFFF", Opacity: 1 },
+            {Key: "_", Hexadecimal: "000000", Opacity: 0 }
         ],
-        tubes: [
-            {tube: "1", colors: [ "", "", "", "" ], row: 0, column: 0 },
-            {tube: "2", colors: [ "", "", "", "Z" ], row: 0, column: 1  },
-            {tube: "3", colors: [ "", "", "", "Z" ], row: 0, column: 2  },
-            {tube: "4", colors: [ "", "", "", "" ], row: 0, column: 3  },
-            {tube: "5", colors: [ "", "", "Z", "Z" ], row: 0, column: 4  },
-            {tube: "6", colors: [ "", "", "", "" ], row: 0, column: 5  },
-            {tube: "7", colors: [ "", "", "Z", "Z" ], row: 1, column: 0  },
-            {tube: "8", colors: [ "", "", "Z", "Z" ], row: 1, column: 1  },
-            {tube: "9", colors: [ "", "", "", "" ], row: 1, column: 2  },
-            {tube: "10", colors: [ "", "", "", "Z" ], row: 1, column: 3  },
-            {tube: "11", colors: [ "", "", "Z", "Z" ], row: 1, column: 4  },
-            {tube: "12", colors: [ "", "", "", "Z" ], row: 1, column: 5  },
-            {tube: "13", colors: [ "", "", "", "" ], row: 2, column: 0  },
-            {tube: "14", colors: [ "", "", "", "" ], row: 2, column: 1  }
+        Tubes: [
+            {Tube:  "1", Bands: [ "A", "B", "C", "D" ], Row: 0, Column: 0 },
+            {Tube:  "2", Bands: [ "E", "F", "B", "Z" ], Row: 0, Column: 1  },
+            {Tube:  "3", Bands: [ "G", "C", "D", "Z" ], Row: 0, Column: 2  },
+            {Tube:  "4", Bands: [ "J", "B", "J", "H" ], Row: 0, Column: 3  },
+            {Tube:  "5", Bands: [ "I", "F", "Z", "Z" ], Row: 0, Column: 4  },
+            {Tube:  "6", Bands: [ "A", "J", "H", "D" ], Row: 0, Column: 5  },
+            {Tube:  "7", Bands: [ "G", "K", "Z", "Z" ], Row: 1, Column: 0  },
+            {Tube:  "8", Bands: [ "E", "K", "Z", "Z" ], Row: 1, Column: 1  },
+            {Tube:  "9", Bands: [ "J", "K", "F", "H" ], Row: 1, Column: 2  },
+            {Tube: "10", Bands: [ "A", "L", "I", "Z" ], Row: 1, Column: 3  },
+            {Tube: "11", Bands: [ "L", "F", "Z", "Z" ], Row: 1, Column: 4  },
+            {Tube: "12", Bands: [ "G", "L", "E", "Z" ], Row: 1, Column: 5  },
+            {Tube: "13", Bands: [ "_", "_", "_", "_" ], Row: 2, Column: 0  },
+            {Tube: "14", Bands: [ "_", "_", "_", "_" ], Row: 2, Column: 1  }
         ]
     };
     document.getElementById('textareaInput').value = JSON.stringify(input);
+}
+
+var isLocked = false; // Tracks the lock state
+var lockIcon = document.querySelector('.icon-lock');
+
+function updateLockIcon(cropper) {
+    if (isLocked) {
+        var cropperBoxData = cropper.getCropBoxData();
+        lockIcon.style.right = `calc(100% - ${cropperBoxData.left + cropperBoxData.width}px)`;
+        lockIcon.style.bottom = `calc(100% - ${cropperBoxData.top + cropperBoxData.height}px)`;
+        lockIcon.style.display = 'block';
+    } else {
+        lockIcon.style.display = 'none';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -139,19 +154,29 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleDragModeOnDblclick: false,
 
         ready: function (e) {
-          console.log(e.type);
+            console.log(e.type);
         },
         crop: function (e) {   
-          console.log(e.type);
-          console.log(e.detail);
-
+            console.log(e.type);
+            console.log(e.detail);
         }
-      };
-      var cropper = new Cropper(image, options);
-      var originalImageURL = image.src;
-      var uploadedImageType = 'image/png';
-      var uploadedImageName = 'sample-screenshot';
-      var uploadedImageURL; 
+    };
+    var cropper = new Cropper(image, options);
+    var originalImageURL = image.src;
+    var uploadedImageType = 'image/png';
+    var uploadedImageName = 'sample-screenshot';
+    var uploadedImageURL;
+
+    // Add event listener to the cropper container
+    image.addEventListener('dblclick', function() {
+        isLocked = !isLocked; // Toggle lock state
+        if (isLocked) {
+            cropper.disable(); // Disable cropper if locked
+        } else {
+            cropper.enable(); // Enable cropper if unlocked
+        }
+        updateLockIcon(cropper); // Update lock icon display
+    });
 
       // Import image
     var inputImage = document.getElementById('PuzzleSetupUpload');
