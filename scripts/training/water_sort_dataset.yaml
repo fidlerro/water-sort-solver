@@ -1,0 +1,15 @@
+# Water Sort Solver Dataset Configuration
+# Place this file in water-sort-solver/v1.2.0/scripts/training/
+
+# Train/Val paths are relative to this file's location (or current directory when running).
+# Adjust these paths if your directory structure is different.
+
+# Relative path to the dataset root from this file
+train: ../../../tensor-flow/dataset/images/train
+val: ../../../tensor-flow/dataset/images/train
+
+# Number of classes
+nc: 1
+
+# Class names
+names: ['tube']
