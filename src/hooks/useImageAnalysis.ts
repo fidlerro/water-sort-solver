@@ -2,6 +2,11 @@ import { useCallback, useState } from "react";
 import { PuzzleConfiguration } from "../types/puzzle";
 import { buildPaletteFromTubes, DEFAULT_COLOR_MAP } from "../lib/utils/colors";
 import { detectTubes, BoundingBox } from "../lib/ai/inference";
+import { 
+  groupSegmentsIntoTubes, 
+  segmentClassToColorLetter,
+  validateTubeConfiguration 
+} from "../lib/ai/segmentProcessing";
 
 function rgbToHex(r: number, g: number, b: number) {
   return (
@@ -222,26 +227,37 @@ export function useImageAnalysis() {
     setPreviewUrl(url);
 
     try {
-      // Run tube detection with ONNX model
+      // Run segment detection with ONNX model
       const detectionResult = await detectTubes(file);
       
-      // Sort boxes from left to right (based on x-coordinate)
-      const sortedBoxes = detectionResult.boxes.sort((a, b) => a.x - b.x);
+      console.log(`Detected ${detectionResult.boxes.length} segments`);
       
-      // Map each detected tube to a configuration
-      const tubes = sortedBoxes.map((box, index) => {
-        // For now, initialize with unknown colors
-        // In a future phase, we'll add color detection within each tube
+      // Use the organized tubes array from detection (already sorted and grouped)
+      if (!detectionResult.tubes || detectionResult.tubes.length === 0) {
+        throw new Error('No tubes detected in the image');
+      }
+      
+      console.log(`Grouping ${detectionResult.boxes.length} segments with gap threshold: 55.7px`);
+      console.log(`Grouped segments into ${detectionResult.tubes.length} tubes`);
+      
+      // Build tube configurations with actual detected colors
+      const tubes = detectionResult.tubes.map((tube, index) => {
+        // Map segments to color letters, filtering out empty segments
+        const colors = tube.segments
+          .map(seg => segmentClassToColorLetter(seg.className || 'unknown'))
+          .filter(color => color !== ''); // Remove empty segments
+        
         return {
           index,
-          colors: ["?", "?", "?", "?"],
+          colors,
           metadata: {
-            boundingBox: box,
+            segmentCount: tube.segments.length,
+            confidence: Math.min(...tube.segments.map(s => s.confidence)),
           },
         };
       });
 
-      // Build color palette (currently empty since we don't have colors yet)
+      // Build color palette from detected colors
       const palette = buildPaletteFromTubes(tubes.map((tube) => tube.colors));
 
       const config: PuzzleConfiguration = {
@@ -249,13 +265,21 @@ export function useImageAnalysis() {
         timestamp: new Date().toISOString(),
         tubes,
         colorPalette: palette,
-        hasUnknowns: true,
+        hasUnknowns: tubes.some((tube) => tube.colors.includes("?")),
         metadata: {
           source: "ai",
-          confidence: Math.min(
-            ...sortedBoxes.map((box) => box.confidence)
-          ),
+          confidence: tubes.length > 0
+            ? Math.min(...tubes.map((tube) => tube.metadata?.confidence || 0))
+            : 0,
           originalImage: url,
+          detection: {
+            tubes: detectionResult.tubes,
+            imageWidth: detectionResult.imageWidth,
+            imageHeight: detectionResult.imageHeight,
+            confidence: tubes.length > 0
+              ? Math.min(...tubes.map((tube) => tube.metadata?.confidence || 0))
+              : undefined,
+          },
         },
       };
 

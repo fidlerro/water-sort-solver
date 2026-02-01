@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
+import HelpOverlay from "./components/layout/HelpOverlay";
 import UploadZone from "./components/upload/UploadZone";
-import ProcessingIndicator from "./components/upload/ProcessingIndicator";
+import PlaybackControls from "./components/shared/PlaybackControls";
 import ConfigReview from "./components/analysis/ConfigReview";
-import ManualSetup from "./components/manual/ManualSetup";
 import SolutionViewer from "./components/solver/SolutionViewer";
 import Toast from "./components/shared/Toast";
 import Button from "./components/shared/Button";
@@ -36,6 +35,7 @@ export default function App() {
   const [activeConfig, setActiveConfig] = useState<PuzzleConfiguration | null>(
     null,
   );
+  const [localConfiguration, setLocalConfiguration] = useState<PuzzleConfiguration | null>(null);
 
   const [tubeCount, setTubeCount] = useState(DEFAULT_TUBE_COUNT);
   const [tubeInputs, setTubeInputs] = useState<string[]>(
@@ -53,18 +53,18 @@ export default function App() {
     document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
+  // Update local configuration when analysis completes
   useEffect(() => {
-    if (!configuration) return;
-    setTubeCount(configuration.tubes.length);
-    setTubeInputs(configuration.tubes.map((tube) => tube.colors.join("")));
-    setPalette(configuration.colorPalette);
+    if (configuration) {
+      setLocalConfiguration(configuration);
+      setTubeCount(configuration.tubes.length);
+      setTubeInputs(configuration.tubes.map((tube) => tube.colors.join("")));
+    }
   }, [configuration]);
 
-  useEffect(() => {
-    if (solution?.warnings?.length) {
-      setToast({ message: solution.warnings[0], tone: "warning" });
-    }
-  }, [solution]);
+  const handleConfigurationChange = (newConfig: PuzzleConfiguration) => {
+    setLocalConfiguration(newConfig);
+  };
 
   const onFileSelected = async (file: File) => {
     setMode("analysis");
@@ -72,9 +72,9 @@ export default function App() {
   };
 
   const onAcceptAnalysis = () => {
-    if (!configuration) return;
-    setActiveConfig(configuration);
-    solve(configuration);
+    if (!localConfiguration) return;
+    setActiveConfig(localConfiguration);
+    solve(localConfiguration);
     setStepIndex(0);
     setMode("solution");
   };
@@ -102,7 +102,6 @@ export default function App() {
       hasUnknowns: tubes.some((tube) => tube.colors.includes("?")),
       metadata: {
         source: "manual",
-        confidence: 0.85,
       },
     };
 
@@ -111,6 +110,21 @@ export default function App() {
     setStepIndex(0);
     setMode("solution");
   };
+
+  useEffect(() => {
+    const currentConfig = localConfiguration || activeConfig;
+    if (currentConfig) {
+      setPalette(currentConfig.colorPalette);
+    }
+  }, [localConfiguration, activeConfig]);
+
+  useEffect(() => {
+    if (solution?.warnings?.length) {
+      setToast({ message: solution.warnings[0], tone: "warning" });
+    }
+  }, [solution]);
+
+  const currentDisplayConfig = localConfiguration || configuration;
 
   const updateTubeCount = (count: number) => {
     const nextCount = Math.max(3, Math.min(18, count));
@@ -145,91 +159,57 @@ export default function App() {
     };
   }, [tubeInputs]);
 
+  // Calculate detection info for VCR display
+  const detectionInfo = useMemo(() => {
+    if (!currentDisplayConfig?.metadata?.detection) return undefined;
+    const { detection } = currentDisplayConfig.metadata;
+    
+    return {
+      tubes: detection.tubes.length,
+      segments: detection.tubes.reduce((sum, tube) => sum + tube.segments.length, 0),
+      colors: Object.keys(currentDisplayConfig.colorPalette).length,
+      confidence: detection.confidence ? Math.round(detection.confidence * 100) : 0
+    };
+  }, [currentDisplayConfig]);
+
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  // Re-upload handler
+  const handleReupload = () => {
+    reset();
+    setActiveConfig(null);
+    setMode("upload");
+  };
+
   return (
     <div className="app">
       <Header
         isDark={isDark}
         onToggleTheme={() => setTheme(isDark ? "light" : "dark")}
+        isHelpOpen={isHelpOpen}
+        onToggleHelp={() => setIsHelpOpen(!isHelpOpen)}
       />
+      
+      <HelpOverlay 
+        isOpen={isHelpOpen} 
+        onClose={() => setIsHelpOpen(false)}
+      />
+
       <main className="main">
         <div className="container grid grid-2">
           <div className="grid" style={{ gap: 16 }}>
-            <UploadZone
-              onFileSelected={onFileSelected}
-              previewUrl={previewUrl}
-            />
-            <ProcessingIndicator isProcessing={isProcessing} />
-            {mode === "analysis" && configuration && (
-              <ConfigReview
-                configuration={configuration}
-                onAccept={onAcceptAnalysis}
-                onAdjust={() => setMode("manual")}
-              />
-            )}
-            {mode !== "solution" && (
-              <div className="card">
-                <h3 className="section-title">Or Setup Manually</h3>
-                <p className="muted">
-                  Use letters A-P and ? for unknown segments. Example: A B ? C →
-                  AB?C.
-                </p>
-                <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-                  <Button onClick={() => setMode("manual")}>
-                    Open Manual Setup
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      reset();
-                      setActiveConfig(null);
-                      setMode("upload");
-                    }}
-                  >
-                    Reset
-                  </Button>
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <span className="muted">Preview tubes:</span>
-                  <div className="tube-grid" style={{ marginTop: 12 }}>
-                    {manualConfigPreview.tubes.slice(0, 6).map((tube) => (
-                      <div className="tube-card" key={tube.index}>
-                        <div className="muted">Tube {tube.index + 1}</div>
-                        <div className="tube-row">
-                          {[...tube.colors].reverse().map((color, idx) => (
-                            <span
-                              key={`${tube.index}-${idx}`}
-                              className="color-chip"
-                              style={{
-                                background: palette[color]?.hex ?? "#111827",
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="grid" style={{ gap: 16 }}>
-            {mode === "manual" && (
-              <ManualSetup
-                tubeCount={tubeCount}
-                tubeInputs={tubeInputs}
-                palette={palette}
-                onTubeCountChange={updateTubeCount}
-                onTubeInputChange={(index, value) => {
-                  setTubeInputs((prev) => {
-                    const next = [...prev];
-                    next[index] = value;
-                    return next;
-                  });
-                }}
-                onPaletteChange={onPaletteChange}
-                onSave={onManualSave}
-                onCancel={() => setMode("upload")}
-              />
+            {(mode === "upload" || mode === "analysis") && (
+              <>
+                <UploadZone
+                  onFileSelected={onFileSelected}
+                  previewUrl={previewUrl}
+                  detectionData={currentDisplayConfig?.metadata?.detection || null}
+                  palette={currentDisplayConfig?.colorPalette}
+                  onConfigurationChange={handleConfigurationChange}
+                  isProcessing={isProcessing}
+                  onPlay={onAcceptAnalysis}
+                />
+              </>
             )}
             {mode === "solution" && solution && activeConfig && (
               <SolutionViewer
@@ -239,6 +219,14 @@ export default function App() {
                 stepIndex={stepIndex}
                 onStepChange={setStepIndex}
                 guaranteedMoves={guaranteedMoves}
+                // Pass detection data for Reality View
+                detectionData={activeConfig.metadata?.detection}
+                imageUrl={activeConfig.metadata?.originalImage}
+                onReset={() => {
+                  setMode("upload");
+                  reset();
+                  setActiveConfig(null);
+                }}
               />
             )}
             {mode === "solution" && solution && !activeConfig && (
@@ -252,7 +240,33 @@ export default function App() {
           </div>
         </div>
       </main>
-      <Footer />
+      
+      {/* VCR Controls as Footer */}
+      {/* Footer / VCR Controls */}
+      <footer className="footer-area">
+        {(mode === 'analysis' && previewUrl) || mode === 'solution' ? (
+          <PlaybackControls
+            mode={mode === 'solution' ? 'solution' : 'analysis'}
+            detectionInfo={detectionInfo}
+            onPlay={onAcceptAnalysis}
+            onUpload={handleReupload}
+            
+            // Solution props
+            currentStep={stepIndex}
+            totalSteps={solution?.steps.length || 0}
+            onNext={() => setStepIndex(prev => Math.min((solution?.steps.length || 1) - 1, prev + 1))}
+            onPrev={() => setStepIndex(prev => Math.max(0, prev - 1))}
+            onFirst={() => setStepIndex(0)}
+            onLast={() => setStepIndex((solution?.steps.length || 1) - 1)}
+            onPause={() => {
+              setMode("upload");
+              reset();
+              setActiveConfig(null);
+            }}
+          />
+        ) : null}
+      </footer>
+
       {toast && (
         <Toast
           message={toast.message}

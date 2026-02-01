@@ -25,5 +25,22 @@ export interface PuzzleConfiguration {
     source: "ai" | "manual";
     confidence?: number;
     originalImage?: string;
+    detection?: {
+      tubes: Array<{
+        segments: Array<{
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+          confidence: number;
+          className?: string;
+        }>;
+        centerX: number;
+        centerY?: number;
+      }>;
+      imageWidth: number;
+      imageHeight: number;
+      confidence?: number;
+    };
   };
 }

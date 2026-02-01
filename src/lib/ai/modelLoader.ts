@@ -3,24 +3,29 @@ import * as ort from 'onnxruntime-web';
 let modelSession: ort.InferenceSession | null = null;
 
 /**
- * Load the ONNX tube detection model
+ * Load the ONNX multi-class segment detection model
+ * 
+ * Model detects individual colored segments (not tubes) with 16 classes:
+ * - 14 color classes (royal_indigo, crimson_red, etc.)
+ * - 1 empty class
+ * - 1 unknown class
  */
-export async function loadTubeDetectorModel(): Promise<ort.InferenceSession> {
+export async function loadSegmentDetectorModel(): Promise<ort.InferenceSession> {
   if (modelSession) {
     return modelSession;
   }
 
   try {
-    // Load the segment detection model (16 classes: 14 colors + empty + unknown)
+    // Load the 16-class segment detection model
     modelSession = await ort.InferenceSession.create('/models/best_segments.onnx', {
       executionProviders: ['wasm'],
     });
     
-    console.log('ONNX model loaded successfully');
+    console.log('ONNX segment detection model loaded successfully (16 classes)');
     return modelSession;
   } catch (error) {
     console.error('Failed to load ONNX model:', error);
-    throw new Error('Failed to load tube detector model');
+    throw new Error('Failed to load segment detector model');
   }
 }
 
