@@ -6,6 +6,7 @@ tensor-flow/*
 dist/*
 node_modules/*
 .env
+.ftp-deploy.json
 
 # C# Build Results
 [Dd]ebug/

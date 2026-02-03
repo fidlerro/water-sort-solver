@@ -12,7 +12,7 @@ export default function Header({ isDark, onToggleTheme, isHelpOpen, onToggleHelp
     <header className="header">
       <div className="container header-inner">
         <div className="brand">
-          <img src="/images/favicon-48.png" alt="Water Sort Solver" className="brand-logo" />
+          <img src="./images/favicon-48.png" alt="Water Sort Solver" className="brand-logo" />
           <div className="brand-info">
             <div className="brand-title">Water Sort Solver</div>
             <div className="brand-subtitle">AI ASSISTED</div>

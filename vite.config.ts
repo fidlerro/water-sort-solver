@@ -35,7 +35,7 @@ export default defineConfig({
       },
     },
   ],
-  base: "./",
+  base: "/puzzle-n-survival/",
   server: {
     fs: {
       strict: false,
